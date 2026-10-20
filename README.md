@@ -120,6 +120,13 @@ node scripts/scan.mjs             # writes out/
 To add companies to everyone's scan, add lines to `data/extra-boards.txt`. That
 also triggers a rebuild of the board list.
 
+**Keeping scans on time.** GitHub runs scheduled workflows "best effort."
+On this repo the every-20-minutes schedule fired only twice in 13 hours. To
+fix that, the repo owner runs `apps-script/Kicker.gs` in a separate Apps Script
+project. It starts a scan through the GitHub API about every 20 minutes;
+setup steps are at the top of the file. Anyone running a copy of the scanner
+needs their own kicker.
+
 GitHub turns off scheduled workflows in public repos after 60 days without
 activity. The weekly board-list commit should prevent that. If the scan ever
 stops, re-enable it under **Actions**.
