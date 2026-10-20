@@ -1,0 +1,44 @@
+# Boards to scan besides the ones found from Simplify's links. One per line:
+#   ats:slug | Company name
+# ats is greenhouse, lever, ashby, or smartrecruiters. For Workday, paste any
+# posting or careers link from the company's myworkdayjobs.com site instead.
+# Checked live on 2026-10-07 (from linkedin-sourcer).
+greenhouse:stripe | Stripe
+greenhouse:figma | Figma
+greenhouse:duolingo | Duolingo
+greenhouse:robinhood | Robinhood
+greenhouse:coinbase | Coinbase
+greenhouse:datadog | Datadog
+greenhouse:pinterest | Pinterest
+greenhouse:reddit | Reddit
+greenhouse:lyft | Lyft
+greenhouse:roblox | Roblox
+greenhouse:cloudflare | Cloudflare
+greenhouse:databricks | Databricks
+greenhouse:anthropic | Anthropic
+greenhouse:affirm | Affirm
+greenhouse:samsara | Samsara
+greenhouse:point72 | Point72
+greenhouse:imc | IMC Trading
+greenhouse:mongodb | MongoDB
+greenhouse:elastic | Elastic
+greenhouse:toast | Toast
+greenhouse:waymo | Waymo
+greenhouse:scaleai | Scale AI
+greenhouse:verkada | Verkada
+greenhouse:rubrik | Rubrik
+greenhouse:vercel | Vercel
+greenhouse:epicgames | Epic Games
+greenhouse:block | Block
+greenhouse:doordashusa | DoorDash
+greenhouse:airbnb | Airbnb
+greenhouse:instacart | Instacart
+lever:palantir | Palantir
+lever:shieldai | Shield AI
+ashby:openai | OpenAI
+ashby:ramp | Ramp
+ashby:notion | Notion
+ashby:snowflake | Snowflake
+ashby:perplexity | Perplexity
+ashby:cohere | Cohere
+ashby:harvey | Harvey

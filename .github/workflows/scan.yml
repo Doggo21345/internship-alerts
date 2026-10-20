@@ -1,0 +1,40 @@
+# Every 20 minutes: read every board in data/boards.json and publish the
+# results to the `data` branch, which the sheets read. The branch is replaced
+# each time (one commit, no history), so it doesn't grow.
+name: scan
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+concurrency:
+  group: scan
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Previous scan
+        run: |
+          mkdir -p out
+          if git fetch --depth=1 origin data; then
+            git --work-tree=out checkout FETCH_HEAD -- . && git reset -q
+          fi
+      - run: node scripts/scan.mjs
+      - name: Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          git init -q -b data
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Scan $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data

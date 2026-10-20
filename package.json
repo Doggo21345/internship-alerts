@@ -1,0 +1,12 @@
+{
+  "name": "internship-alerts",
+  "private": true,
+  "type": "module",
+  "description": "Scans thousands of company job boards for new internships; Google Sheets send the alerts.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "boards": "node scripts/build-boards.mjs",
+    "scan": "node scripts/scan.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

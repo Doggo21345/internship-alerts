@@ -1,0 +1,28 @@
+# Weekly: rebuild the board list from Simplify's links, data/extra-boards.txt
+# and the YC directory, and commit it if it changed.
+name: boards
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+  push:
+    paths: ["data/extra-boards.txt"]
+permissions:
+  contents: write
+jobs:
+  boards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-boards.mjs
+      - name: Commit
+        run: |
+          git add data/boards.json data/companies.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Board list: $(node -e 'console.log(require("./data/boards.json").length)') boards"
+          git push -q
