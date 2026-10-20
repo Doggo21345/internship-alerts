@@ -98,3 +98,37 @@ test("mergeCopies shows a multi-city posting once, dated by its first sighting",
   assert.equal(merged[0].location, "Toronto · NYC");
   assert.deepEqual(merged[0].countries, ["CA", "US"]);
 });
+
+test("Workday: every page is read, so a new posting on page 3 of an unsorted site is caught", async () => {
+  const wd = { ...parseBoardKey("workday:acme.wd1.myworkdayjobs.com/External"), company: "Acme", tags: [] };
+  const posting = (n, postedOn = "Posted 30+ Days Ago") => ({ title: `Intern ${n}`, externalPath: `/job/x/${n}`, locationsText: "Austin, TX", postedOn, bulletFields: [String(n)] });
+  const site = (extra = []) => async (req) => {
+    const all = [...Array.from({ length: 45 }, (_, i) => posting(i)), ...extra];
+    const { offset, limit } = JSON.parse(req.body);
+    // Like real Workday: the total comes only with the first page.
+    return { total: offset === 0 ? all.length : 0, jobPostings: all.slice(offset, offset + limit) };
+  };
+  const s1 = await scan([wd], null, { now: T0, fetchJson: site() });
+  assert.equal(s1.open.jobs.length, 45);
+  const s2 = await scan([wd], s1.state, { now: T0 + 60e3, fetchJson: site([posting(99, "Posted Today")]) });
+  assert.deepEqual(s2.feed.jobs.map((j) => j.title), ["Intern 99"]);
+});
+
+test("SmartRecruiters: pages past the first 100 are read; a failed page fails the board", async () => {
+  const sr = { ...parseBoardKey("smartrecruiters:Acme"), company: "Acme", tags: [] };
+  const all = Array.from({ length: 230 }, (_, i) => ({ id: String(i), name: `Intern ${i}`, location: { fullLocation: "NYC" }, releasedDate: "2026-10-19" }));
+  const seen = [];
+  const ok = await scan([sr], null, { now: T0, fetchJson: async (req) => {
+    const offset = Number(new URL(req.url).searchParams.get("offset"));
+    seen.push(offset);
+    return { totalFound: all.length, content: all.slice(offset, offset + 100) };
+  } });
+  assert.deepEqual(seen, [0, 100, 200]);
+  assert.equal(ok.open.jobs.length, 230);
+  const bad = await scan([sr], ok.state, { now: T0 + 60e3, waits: [], fetchJson: async (req) => {
+    if (req.url.includes("offset=100")) throw new HttpError(500, req.url);
+    return { totalFound: all.length, content: all.slice(0, 100) };
+  } });
+  assert.equal(bad.status.boardsOk, 0);
+  assert.equal(bad.open.jobs.length, 230, "kept the last full read");
+});
