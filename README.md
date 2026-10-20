@@ -161,6 +161,39 @@ first few.
 skills and claims the review flags, but they can't know your experience as
 well as you do.
 
+## Resume Tailor for Word files (no Google needed)
+
+The same tailor also runs on your computer, on a Word resume. It uses the same
+prompts, checks and review as `Tailor.gs`: it loads that file directly, and
+`tailor/docx.mjs` stands in for Google Docs.
+
+```
+npm install
+export ANTHROPIC_API_KEY=sk-ant-...        # from console.anthropic.com
+node tailor/cli.mjs --resume resume.docx \
+  --job https://jobs.lever.co/company/1234-abcd \
+  --bank my-bank.csv --skills my-skills.csv
+```
+
+It writes `resume - <job>.docx` next to your resume, plus
+`resume - <job>.changes.md` listing every edit and whether it was applied,
+rejected or undone. Your resume itself isn't changed.
+
+- **Banks:** start from `tailor/examples/bank.csv` and `skills.csv`. They have
+  the same columns as the sheet tabs, and you can edit them in Excel or Google
+  Sheets and export as CSV.
+- **Job links:** Greenhouse, Lever, Ashby, SmartRecruiters and Workday links
+  are read through those sites' APIs. For other sites, save the description
+  to a text file and pass `--jd-file jd.txt` instead of `--job`.
+- **Formatting:** the edited text keeps the formatting of the text it
+  replaces. A skills line's bold label stays bold.
+- **Left alone:** paragraphs containing links, fields, pictures or tracked
+  changes are never edited.
+- **Page check:** needs LibreOffice installed. Without it, the tailor says it
+  skipped the check, and you should look at the page count yourself.
+- **Model:** `--model claude-sonnet-5-5` costs about half as much as the
+  default `claude-opus-5-5`.
+
 ## Limits worth knowing
 
 - **Workday has no public API.** The scanner uses the JSON endpoint behind

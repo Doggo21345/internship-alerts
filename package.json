@@ -6,7 +6,14 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "boards": "node scripts/build-boards.mjs",
-    "scan": "node scripts/scan.mjs"
+    "scan": "node scripts/scan.mjs",
+    "tailor": "node tailor/cli.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.12",
+    "jszip": "^3.10.2"
+  }
 }

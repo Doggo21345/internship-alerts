@@ -1,0 +1,4 @@
+Experience,Bullet,Skills it shows
+Amazon,"Built a SQL pipeline that cut weekly report prep from 6 hours to 20 minutes for a 12-person team","SQL, automation"
+Amazon,"Analyzed 2M user sessions in Redshift to find the top 3 drivers of churn, presented to director","data analysis, Redshift"
+Robotics Club,"Wrote the rover's path planner in C++, finishing 2nd of 30 teams","C++, algorithms"
