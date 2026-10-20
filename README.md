@@ -68,6 +68,7 @@ career sites (Google, Meta, Apple, Microsoft, TikTok...). A full scan found
    | Run when you're not present | the 15-minute check |
    | Display third-party web content | the "Internship Alerts" menu |
    | See your primary email address | the default address for alerts |
+   | See, edit, create and delete your Google Docs, and your Drive files | Resume Tailor only: copy your resume, edit the copy, and export it to PDF to count pages. Leave `Tailor.gs` and these two scopes out if you don't use it |
 4. **Phone alerts:** install the free [ntfy](https://ntfy.sh) app (iPhone or
    Android), tap **+**, and subscribe to the **Push topic** from the
    **Alert settings** tab. Anyone who knows the topic can read your alerts, so
@@ -91,6 +92,74 @@ Google's servers. **Alert settings > Last result** shows what the last check did
 | Company types | `Big Tech, YC Startup, Quant` | |
 | Companies | `Stripe, Jane Street` | or a Greenhouse, Lever or Ashby jobs link. A posting fits if it's from one of these OR of one of the Company types |
 | Exclude words | `PhD, MBA` | |
+
+## Resume Tailor (optional)
+
+`apps-script/Tailor.gs` makes a copy of your resume tailored to a job, with
+the formatting unchanged. It goes in the same Apps Script project as
+`Alerts.gs`.
+
+**What it changes:**
+- **Bullets.** For each role or project, each bullet is kept, swapped for one
+  from your **Bullet bank** for that same role, or reworded toward the job
+  description.
+- **Skills lines** (Languages, Tools, Methodologies...). Items are reordered
+  and filled in from your **Skills bank**.
+
+**How each edit is checked:**
+1. **Code checks.** A new bullet must use the same numbers as its source and
+   stay within 10% of the original's length. It can't use first person or
+   repeat another bullet. A skills line may only use items already on your
+   resume or in your Skills bank.
+2. **Review.** A second Claude call compares each edit with its source and
+   rejects anything the source doesn't support. If the review call fails,
+   every edit is rejected.
+3. **Page check.** The copy is exported to PDF. If it runs onto more pages
+   than your resume, the edits that grew the most are undone until it fits.
+
+Anything rejected keeps your original text. Every edit and its outcome is
+listed on the **Tailor changes** tab. Your resume itself is never edited.
+
+**Setup:**
+1. Add `Tailor.gs` to the project. Use this repo's `appsscript.json`, which
+   adds Google Docs and Drive access for copying and exporting your resume.
+2. Run `setupTailor`. On the **Resume settings** tab, paste your resume's
+   Google Doc link. A Word file works once you open it in Google Docs and use
+   **File > Save as Google Docs**.
+3. **Resume Tailor > Set Claude API key**, using a key from
+   console.anthropic.com. It's stored for your Google account only, not on any
+   tab.
+4. Fill in the **Bullet bank**: Experience (words from that role's heading on
+   your resume, e.g. "Amazon"), the bullet itself, and optionally what skills
+   it shows. Fill in the **Skills bank**: one row per category, e.g.
+   Methodologies: Agile, Scrum, CI/CD. To have methodologies tailored, your
+   resume needs a skills line for them. The tailor edits existing lines but
+   never adds new ones.
+5. Tailor one job: select its row on **Matches** and pick
+   **Resume Tailor > Tailor for selected job**. To tailor automatically, put
+   alert names (or "All") in **Auto-tailor alerts**. New matches then get a
+   tailored copy within about 15 minutes, and you get an email with the link,
+   up to the **Daily limit**.
+
+**How it finds the parts to change.** Headings are matched by name
+(Experience, Projects, Leadership, Skills, Technical Skills...). Bullets are
+real list items or lines starting with "•". The non-bullet lines just above a
+role's bullets are its heading, and Bullet bank rows match on those words. The
+job description comes from the job site's API (Greenhouse, Lever, Ashby,
+SmartRecruiters, Workday). For other career sites, the page text is read and
+Claude confirms it really is a job description. If it can't find one, the job
+is marked **Needs job description**: paste it into the last column of
+**Tailored** and run **Tailor for selected job** on that row.
+
+**Cost and model:** `claude-opus-5-5` by default, with the model set on
+Resume settings. A tailoring makes one call per role, one for skills and one
+review, so roughly $0.15-0.40 at Opus prices. `claude-sonnet-5-5` costs about
+half. These are estimates; check your usage on console.anthropic.com after the
+first few.
+
+**Read it before you send it.** The checks catch invented numbers, unknown
+skills and claims the review flags, but they can't know your experience as
+well as you do.
 
 ## Limits worth knowing
 

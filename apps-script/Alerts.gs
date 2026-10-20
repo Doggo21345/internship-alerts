@@ -36,7 +36,8 @@ const IA_ALERT_NOTES = [
   'Email me matches for this alert.',
   'Push matches to my phone (see the Push topic on the Alert settings tab).'
 ];
-const IA_MATCH_HEADERS = ['Found', 'Company', 'Role', 'Location', 'Posted', 'Link', 'Alert', 'Status'];
+// Job ID is how the resume tailor (Tailor.gs) fetches the full job description.
+const IA_MATCH_HEADERS = ['Found', 'Company', 'Role', 'Location', 'Posted', 'Link', 'Alert', 'Status', 'Job ID'];
 const IA_ROLE_TYPES = ['Software', 'Data/AI', 'Hardware', 'Quant', 'Product', 'Design', 'Business'];
 const IA_COMPANY_TYPES = ['Big Tech', 'YC Startup', 'Quant'];
 
@@ -465,7 +466,7 @@ function iaLoggedLinks_(ss) {
 function iaLog_(sh, matches, now) {
   if (!matches.length) return;
   const rows = matches.map(({ job, alerts }) => [new Date(job.firstSeen || now), job.company, job.title, job.location,
-    job.postedAt ? new Date(job.postedAt) : '', job.url, alerts.map((a) => a.name).join(', '), '']);
+    job.postedAt ? new Date(job.postedAt) : '', job.url, alerts.map((a) => a.name).join(', '), '', job.id || '']);
   sh.insertRowsBefore(2, rows.length);
   sh.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
   sh.getRange(2, 1, rows.length, 1).setNumberFormat('MMM d, h:mm am/pm');

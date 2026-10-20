@@ -30,14 +30,16 @@ class FakeSheet {
   getName() { return this.name; }
 }
 
-export function loadAlerts({ responses = {}, now = Date.now() } = {}) {
+export function loadAlerts({ responses = {}, now = Date.now(), files = ["Alerts.gs"], extra = {} } = {}) {
   const sheets = new Map();
   const props = new Map();
   const sent = { emails: [], pushes: [], fetched: [] };
   const response = (url, opts = {}) => {
     sent.fetched.push(url);
     if (url === "https://ntfy.sh/") { sent.pushes.push(JSON.parse(opts.payload)); return resp(200, "{}"); }
-    const r = typeof responses === "function" ? responses(url) : responses[url];
+    const r = typeof responses === "function" ? responses(url, opts) : responses[url];
+    if (r && r.__status) return resp(r.__status, typeof r.body === "string" ? r.body : JSON.stringify(r.body));
+    if (typeof r === "string") return resp(200, r);
     return r === undefined ? resp(404, "") : resp(200, JSON.stringify(r));
   };
   const resp = (code, text) => ({ getResponseCode: () => code, getContentText: () => text });
@@ -56,11 +58,20 @@ export function loadAlerts({ responses = {}, now = Date.now() } = {}) {
       getUi: () => ({ alert: (m) => { sent.uiAlert = m; }, createMenu() { const m = { addItem: () => m, addSeparator: () => m, addToUi: () => {} }; return m; } })
     },
     UrlFetchApp: { fetch: response, fetchAll: (reqs) => reqs.map((r) => response(r.url, r)) },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },
+    PropertiesService: {
+      getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }),
+      getUserProperties: () => ({ getProperty: (k) => props.get("user:" + k) ?? null, setProperty: (k, v) => props.set("user:" + k, v) })
+    },
     MailApp: { getRemainingDailyQuota: () => 100, sendEmail: (m) => sent.emails.push(m) },
-    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
-    Session: { getEffectiveUser: () => ({ getEmail: () => "me@example.com" }) },
-    Utilities: { getUuid: () => "0123456789abcdef0123456789abcdef" },
+    LockService: {
+      getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }),
+      getDocumentLock: () => ({ tryLock: () => true, releaseLock: () => {} })
+    },
+    Session: { getEffectiveUser: () => ({ getEmail: () => "me@example.com" }), getScriptTimeZone: () => "UTC" },
+    Utilities: {
+      getUuid: () => "0123456789abcdef0123456789abcdef",
+      formatDate: (d) => new Date(d).toISOString().slice(0, 10)
+    },
     ScriptApp: {
       triggers: [],
       getProjectTriggers() { return this.triggers; },
@@ -72,7 +83,8 @@ export function loadAlerts({ responses = {}, now = Date.now() } = {}) {
       }
     }
   };
+  Object.assign(context, extra);
   vm.createContext(context);
-  vm.runInContext(readFileSync(new URL("../apps-script/Alerts.gs", import.meta.url), "utf8"), context);
+  for (const f of files) vm.runInContext(readFileSync(new URL("../apps-script/" + f, import.meta.url), "utf8"), context);
   return { gas: context, sheets, props, sent, setNow: (t) => { now = t; } };
 }
