@@ -132,3 +132,14 @@ test("SmartRecruiters: pages past the first 100 are read; a failed page fails th
   assert.equal(bad.status.boardsOk, 0);
   assert.equal(bad.open.jobs.length, 230, "kept the last full read");
 });
+
+test("changing how boards are read re-baselines them instead of flooding the feed", async () => {
+  const s1 = await scan([stripe], null, { now: T0, fetchJson: fetchFrom({ [url]: gh([1, "SWE Intern", 1]) }) });
+  const old = structuredClone(s1.state);
+  delete old.boards[stripe.key].mode; // a state written before READ_MODE existed
+  old.open[`${stripe.key}:1`].alert = true;
+  const s2 = await scan([stripe], old, { now: T0 + 60e3, fetchJson: fetchFrom({ [url]: gh([1, "SWE Intern", 1], [2, "Data Intern", 2]) }) });
+  assert.equal(s2.feed.jobs.length, 0);
+  const s3 = await scan([stripe], s2.state, { now: T0 + 120e3, fetchJson: fetchFrom({ [url]: gh([1, "SWE Intern", 1], [2, "Data Intern", 2], [3, "ML Intern", 0, T0 + 120e3]) }) });
+  assert.deepEqual(s3.feed.jobs.map((j) => j.title), ["ML Intern"]);
+});
