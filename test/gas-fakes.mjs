@@ -77,7 +77,7 @@ export function loadAlerts({ responses = {}, now = Date.now(), files = ["Alerts.
       getProjectTriggers() { return this.triggers; },
       deleteTrigger() {},
       newTrigger(fn) {
-        const t = { fn, timeBased: () => t, everyMinutes: () => t, forSpreadsheet: () => t, onOpen: () => t,
+        const t = { fn, timeBased: () => t, everyMinutes: () => t, everyDays: () => t, atHour: (h) => { t.hour = h; return t; }, forSpreadsheet: () => t, onOpen: () => t,
           create: () => { context.ScriptApp.triggers.push({ getHandlerFunction: () => fn }); } };
         return t;
       }

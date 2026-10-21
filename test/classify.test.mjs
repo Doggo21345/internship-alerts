@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isInternship, roleTypes, termsIn, companyKey, companyTags, describe } from "../lib/classify.js";
+import { isInternship, levelOf, roleTypes, termsIn, companyKey, companyTags, describe } from "../lib/classify.js";
 
 test("isInternship matches whole words only", () => {
   assert.ok(isInternship("Software Engineer Intern"));
@@ -44,4 +44,16 @@ test("describe adds what sheets filter on, keeping a source's own labels", () =>
   assert.deepEqual(d.countries, ["CA"]);
   assert.deepEqual(d.terms, ["Summer 2027"]);
   assert.deepEqual(d.roleTypes, ["Software"]);
+});
+
+test("levelOf: new grad only when the title says so, or a level-one title", () => {
+  for (const t of ["Software Engineer, New Grad 2026", "New Graduate Software Engineer", "Software Engineer I",
+    "Data Analyst 1", "Entry-Level Data Analyst", "University Grad - Software Engineer (2026 Start)", "Software Engineer I - Backend"]) {
+    assert.equal(levelOf(t), "New Grad", t);
+  }
+  for (const t of ["Software Engineer", "Software Engineer II", "Senior Software Engineer I", "Engineer I/II",
+    "Graduate Research Assistant", "Engineer In Training", "Staff Engineer, Early Career Programs"]) {
+    assert.equal(levelOf(t), null, t);
+  }
+  assert.equal(levelOf("New Grad Intern"), "Internship");
 });

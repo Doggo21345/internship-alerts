@@ -19,6 +19,7 @@ GitHub Action, every 20 min                    Your Google Sheet, every 15 min
   - `new.json`: postings first seen in the last 3 days
   - `open.json`: every open internship
   - `companies.json`: the companies it covers
+  - `digest.json`: the daily roundup (see below)
 
   It only reads each company's public job listings. A company's first scan
   only records what's already posted. After that, a posting counts as new when
@@ -193,6 +194,22 @@ rejected or undone. Your resume itself isn't changed.
   skipped the check, and you should look at the page count yourself.
 - **Model:** `--model claude-sonnet-5-5` costs about half as much as the
   default `claude-opus-5-5`.
+
+## Daily roundup (repo owner)
+
+Every scan also writes `digest.json`: the internships and new grad jobs first
+seen in the last 24 hours, as a newsletter (HTML) and a LinkedIn post (plain
+text, no links, under 3,000 characters). Big Tech, quant firms and YC startups
+are listed first. `apps-script/Digest.gs` emails it to you each morning, ready
+to paste into beehiiv and LinkedIn. Setup steps are at the top of the file. It
+posts nothing by itself.
+
+New grad jobs come from two places: Greenhouse, Lever and Ashby boards (titles
+that say new grad, entry level, early career, or "Engineer I"), and
+[Simplify's new grad list](https://github.com/SimplifyJobs/New-Grad-Positions).
+Workday and SmartRecruiters boards are only searched for internships, so their
+new grad jobs come only from Simplify's list. Sheets' alerts stay
+internship-only.
 
 ## Limits worth knowing
 
