@@ -1,0 +1,45 @@
+{
+ "scannedAt": 1792855601982,
+ "boards": 2624,
+ "boardsOk": 2623,
+ "byAts": {
+  "ashby": {
+   "boards": 681,
+   "ok": 680,
+   "internships": 632,
+   "newGrad": 89
+  },
+  "greenhouse": {
+   "boards": 547,
+   "ok": 547,
+   "internships": 1826,
+   "newGrad": 326
+  },
+  "lever": {
+   "boards": 187,
+   "ok": 187,
+   "internships": 369,
+   "newGrad": 106
+  },
+  "smartrecruiters": {
+   "boards": 126,
+   "ok": 126,
+   "internships": 1200,
+   "newGrad": 73
+  },
+  "workday": {
+   "boards": 1083,
+   "ok": 1083,
+   "internships": 10666,
+   "newGrad": 543
+  }
+ },
+ "extra": {
+  "simplify": "unchanged",
+  "simplify-newgrad": "unchanged"
+ },
+ "open": 18003,
+ "newThisScan": 0,
+ "inFeed": 1015,
+ "seconds": 286
+}
